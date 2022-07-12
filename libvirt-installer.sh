@@ -28,13 +28,13 @@ if [[ -z "$LOCAL_USER" ]]; then
     exit 1
 fi
 
-pacman -S libvirt --noconfirm
+pacman -S libvirt --noconfirm > /dev/null
 
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet intel_iommu=on iommu=pt"/g' /etc/default/grub
 
 grub-mkconfig -o /boot/grub/grub.cfg
 
-pacman -S virt-manager qemu vde2 ebtables iptables-nft nftables dnsmasq bridge-utils ovmf --noconfirm
+pacman -S virt-manager qemu vde2 ebtables iptables-nft nftables dnsmasq bridge-utils ovmf --noconfirm > /dev/null
 
 sed -i 's/#unix_sock_group = "libvirt"/unix_sock_group = "libvirt"/g' /etc/libvirt/libvirtd.conf
 sed -i 's/#unix_sock_rw_perms = "0770"/unix_sock_rw_perms = "0770"/g' /etc/libvirt/libvirtd.conf
@@ -43,10 +43,13 @@ echo 'log_filters="1:qemu"' >> /etc/libvirt/libvirtd.conf
 echo 'log_outputs="1:file:/var/log/libvirt/libvirtd.log"' >> /etc/libvirt/libvirtd.conf
 
 usermod -aG libvirt $LOCAL_USER
+systemctl start libvirtd
 systemctl enable libvirtd
 
 sed -i "s/#user = "libvirt-qemu"/user = "${LOCAL_USER}"/g" /etc/libvirt/qemu.conf
 sed -i "s/#group = "libvirt-qemu"/group = "${LOCAL_USER}"/g" /etc/libvirt/qemu.conf
+
+systemctl restart libvirtd
 
 virsh net-autostart default
 virsh net-start default
