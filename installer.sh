@@ -46,8 +46,8 @@ usermod -aG libvirt $LOCAL_USER
 systemctl start libvirtd
 systemctl enable libvirtd
 
-sed -i "s/#user = "libvirt-qemu"/user = "${LOCAL_USER}"/g" /etc/libvirt/qemu.conf
-sed -i "s/#group = "libvirt-qemu"/group = "${LOCAL_USER}"/g" /etc/libvirt/qemu.conf
+sed -i 's/#user = "libvirt-qemu"/user = "'"${LOCAL_USER}"'"/g' /etc/libvirt/qemu.conf
+sed -i 's/#group = "libvirt-qemu"/group = "'"${LOCAL_USER}"'"/g' /etc/libvirt/qemu.conf
 
 systemctl restart libvirtd
 
